@@ -1,0 +1,83 @@
+import logging
+import random
+
+logging.basicConfig(level=logging.WARNING)
+logging.info('in count inversions program')
+
+inversion_count = 0
+inversion_list = []
+
+
+def split_list(inp_a):
+    logging.info('in split list function call')
+    n = len(inp_a)
+    return inp_a[:int(n/2)], inp_a[int(n/2):]
+
+
+def merge(left_a, right_a):
+    global inversion_count
+    n = len(left_a)
+    twon = 2 * n
+    i = 0
+    j = 0
+    k = 0
+    out_a = []
+    while k < twon:
+        if left_a[i] < right_a[j]:
+            out_a.append(left_a[i])
+            i = i + 1
+        else:
+            inversion_count = inversion_count + n - i
+            for x in range(i, n):
+                inversion_list.append((left_a[x], right_a[j]))
+            out_a.append(right_a[j])
+            j = j + 1
+        if i == n or j == n:
+            break
+    while i < n:
+        out_a.append(left_a[i])
+        i = i + 1
+    while j < n:
+        # inversion_count = inversion_count + 1
+        out_a.append(right_a[j])
+        j = j + 1
+    return out_a
+
+
+def merge_sort_actual(inp_left_a, inp_right_a):
+    global inversion_count
+    logging.info('in merge_sort function call')
+    logging.info('left_a is '+str(inp_left_a))
+    logging.info('right_a is ' + str(inp_right_a))
+    if len(inp_left_a) == 1:
+        if inp_left_a < inp_right_a:
+            return [inp_left_a[0], inp_right_a[0]]
+        else:
+            inversion_count = inversion_count + 1
+            inversion_list.append((inp_left_a[0], inp_right_a[0]))
+            return [inp_right_a[0], inp_left_a[0]]
+    else:
+        left_first_half, left_second_half = split_list(inp_left_a)
+        sorted_left_a = merge_sort_actual(left_first_half, left_second_half)
+        right_first_half, right_second_half = split_list(inp_right_a)
+        sorted_right_a = merge_sort_actual(right_first_half, right_second_half)
+        return merge(sorted_left_a, sorted_right_a)
+
+
+def merge_sort(inp_a):
+    nbytwo = int(len(inp_a)/2)
+    return merge_sort_actual(inp_a[:nbytwo], inp_a[nbytwo:])
+
+
+y = list(range(1, 9))
+x_s = list(range(1, 9))
+x_s.reverse()
+merge_a = merge_sort(x_s)
+if y != merge_a:
+    logging.error("FAIL inp is "+str(y)+" x_shuffle is "+str(x_s)+"  sorted x is "+str(merge_a))
+else:
+    logging.warning("PASS")
+    logging.error("FAIL inp is "+str(y)+" x_shuffle is "+str(x_s)+"  sorted x is "+str(merge_a))
+
+logging.warning(str(inversion_count))
+print(inversion_list)
